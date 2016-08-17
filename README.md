@@ -152,7 +152,7 @@ ${DOMAIN}`. 1800 IN A ${IP-ADDRESS}`
 www.${DOMAIN}`. 1800 IN CNAME ${DOMAIN}`.
 ```
 
-**Run Certbot to create SSL certificate for `${DOMAIN}`**
+**Run Certbot to create SSL certificate for `www.${DOMAIN}`**
 Replace ${EMAIL} with email address
 Replace ${DOMAIN} with domain
 ```
