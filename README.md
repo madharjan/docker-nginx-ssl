@@ -114,14 +114,14 @@ sudo mkdir -p /opt/docker/certbot/tmp/
 
 **Copy default configuration and html files to host**
 ```
-sudo docker cp nginx:/etc/nginx/conf.d/default-ssl.conf /opt/docker/nginx/etc/
+sudo docker cp nginx:/etc/nginx/conf.d/default.conf /opt/docker/nginx/etc/
 sudo docker cp nginx:/usr/share/nginx/html/index.html /opt/docker/nginx/html/
 sudo docker cp nginx:/usr/share/nginx/html/50x.html /opt/docker/nginx/html/
 ```
 
 **Update Nginx configuration as necessary**
 ```
-sudo vi /opt/docker/nginx/etc/default-ssl.conf
+sudo vi /opt/docker/nginx/etc/default.conf
 ```
 **Update Webpage as necessary**
 ```
