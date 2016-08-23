@@ -106,7 +106,7 @@ docker run -d -t \
 
 **Prepare folder on host for container volumes**
 ```
-sudo mkdir -p /opt/docker/nginx/etc/
+sudo mkdir -p /opt/docker/nginx/etc/conf.d
 sudo mkdir -p /opt/docker/nginx/html/
 sudo mkdir -p /opt/docker/nginx/log/
 sudo mkdir -p /opt/docker/certbot/tmp/
@@ -114,9 +114,8 @@ sudo mkdir -p /opt/docker/certbot/tmp/
 
 **Copy default configuration and html files to host**
 ```
-sudo docker cp nginx:/etc/nginx/conf.d/default.conf /opt/docker/nginx/etc/
-sudo docker cp nginx:/usr/share/nginx/html/index.html /opt/docker/nginx/html/
-sudo docker cp nginx:/usr/share/nginx/html/50x.html /opt/docker/nginx/html/
+sudo docker exec nginx tar Ccf /etc/nginx - conf.d | tar Cxf /opt/docker/nginx/etc -
+sudo docker exec nginx tar Ccf /usr/share/nginx - html | tar Cxf /opt/docker/nginx -
 ```
 
 **Update Nginx configuration as necessary**
@@ -142,6 +141,39 @@ docker run -d -t \
   -v /opt/docker/certbot:/etc/certbot \
   --name nginx \
   madharjan/docker-nginx-ssl:1.4.6 /sbin/my_init
+```
+
+**Systemd Unit File**
+```
+[Unit]
+Description=Nginx
+
+After=docker.service
+
+[Service]
+TimeoutStartSec=0
+
+ExecStartPre=-/bin/mkdir -p /opt/docker/nginx/html
+ExecStartPre=-/bin/mkdir -p /opt/docker/nginx/etc/conf.d
+ExecStartPre=-/bin/mkdir -p /opt/docker/certbot/etc/tmp
+ExecStartPre=-/usr/bin/docker stop nginx
+ExecStartPre=-/usr/bin/docker rm nginx
+ExecStartPre=-/usr/bin/docker pull madharjan/docker-nginx-ssl:1.4.6
+
+ExecStart=/usr/bin/docker run \
+  -p 80:80 \
+  -p 443:443 \
+  -v /opt/docker/nginx/html:/usr/share/nginx/html \
+  -v /opt/docker/nginx/etc/conf.d:/etc/nginx/conf.d \
+  -v /opt/docker/nginx/log:/var/log/nginx \
+  -v /opt/docker/certbot/etc:/etc/certbot \
+  --name nginx \
+  madharjan/docker-nginx-ssl:1.4.6 /sbin/my_init
+
+ExecStop=/usr/bin/docker stop -t 2 nginx
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 **Configure DNS server for domain**
