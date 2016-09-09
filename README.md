@@ -36,63 +36,6 @@ git tag 1.4.6
 git push origin 1.4.6
 ```
 
-### Development Environment
-using VirtualBox & Ubuntu Cloud Image (Mac & Windows)
-
-**Install Tools**
-
-* [VirtualBox][virtualbox] 4.3.10 or greater
-* [Vagrant][vagrant] 1.6 or greater
-* [Cygwin][cygwin] (if using Windows)
-
-Install `vagrant-vbguest` plugin to auto install VirtualBox Guest Addition to virtual machine.
-```
-vagrant plugin install vagrant-vbguest
-```
-
-[virtualbox]: https://www.virtualbox.org/
-[vagrant]: https://www.vagrantup.com/downloads.html
-[cygwin]: https://cygwin.com/install.html
-
-**Clone this project**
-
-```
-git clone https://github.com/madharjan/docker-nginx-ssl
-cd docker-nginx-ssl
-```
-
-**Startup Ubuntu VM on VirtualBox**
-
-```
-vagrant up
-```
-
-**Build Container**
-
-```
-# login to DockerHub
-vagrant ssh -c "docker login"  
-
-# build
-vagrant ssh -c "cd /vagrant; make"
-
-# test
-vagrant ssh -c "cd /vagrant; make test"
-
-# tag
-vagrant ssh -c "cd /vagrant; make tag_latest"
-
-# update Makefile & Changelog.md
-# release
-vagrant ssh -c "cd /vagrant; make release"
-```
-
-**Tag and Commit to Git**
-```
-git tag 1.4.6
-git push origin 1.4.6
-```
-
 ## Run Container
 
 ### Nginx with Cetbot SSL
@@ -141,39 +84,6 @@ docker run -d -t \
   -v /opt/docker/certbot:/etc/certbot \
   --name nginx \
   madharjan/docker-nginx-ssl:1.4.6 /sbin/my_init
-```
-
-**Systemd Unit File**
-```
-[Unit]
-Description=Nginx
-
-After=docker.service
-
-[Service]
-TimeoutStartSec=0
-
-ExecStartPre=-/bin/mkdir -p /opt/docker/nginx/html
-ExecStartPre=-/bin/mkdir -p /opt/docker/nginx/etc/conf.d
-ExecStartPre=-/bin/mkdir -p /opt/docker/certbot/etc/tmp
-ExecStartPre=-/usr/bin/docker stop nginx
-ExecStartPre=-/usr/bin/docker rm nginx
-ExecStartPre=-/usr/bin/docker pull madharjan/docker-nginx-ssl:1.4.6
-
-ExecStart=/usr/bin/docker run \
-  -p 80:80 \
-  -p 443:443 \
-  -v /opt/docker/nginx/html:/usr/share/nginx/html \
-  -v /opt/docker/nginx/etc/conf.d:/etc/nginx/conf.d \
-  -v /opt/docker/nginx/log:/var/log/nginx \
-  -v /opt/docker/certbot/etc:/etc/certbot \
-  --name nginx \
-  madharjan/docker-nginx-ssl:1.4.6 /sbin/my_init
-
-ExecStop=/usr/bin/docker stop -t 2 nginx
-
-[Install]
-WantedBy=multi-user.target
 ```
 
 **Configure DNS server for domain**
@@ -225,9 +135,35 @@ server {
 }
 ```
 
-**Restart `nginx`** (runit service)
+**Systemd Unit File**
 ```
-docker exec -t \
-  nginx \
-  /bin/bash -c "/usr/bin/sv stop nginx; sleep 1; /usr/bin/sv start nginx;"
+[Unit]
+Description=Nginx
+
+After=docker.service
+
+[Service]
+TimeoutStartSec=0
+
+ExecStartPre=-/bin/mkdir -p /opt/docker/nginx/html
+ExecStartPre=-/bin/mkdir -p /opt/docker/nginx/etc/conf.d
+ExecStartPre=-/bin/mkdir -p /opt/docker/certbot/etc/tmp
+ExecStartPre=-/usr/bin/docker stop nginx
+ExecStartPre=-/usr/bin/docker rm nginx
+ExecStartPre=-/usr/bin/docker pull madharjan/docker-nginx-ssl:1.4.6
+
+ExecStart=/usr/bin/docker run \
+  -p 80:80 \
+  -p 443:443 \
+  -v /opt/docker/nginx/html:/usr/share/nginx/html \
+  -v /opt/docker/nginx/etc/conf.d:/etc/nginx/conf.d \
+  -v /opt/docker/nginx/log:/var/log/nginx \
+  -v /opt/docker/certbot/etc:/etc/certbot \
+  --name nginx \
+  madharjan/docker-nginx-ssl:1.4.6 /sbin/my_init
+
+ExecStop=/usr/bin/docker stop -t 2 nginx
+
+[Install]
+WantedBy=multi-user.target
 ```
