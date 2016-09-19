@@ -7,10 +7,10 @@ VERSION = 1.4.6
 all: build
 
 build:
-	docker build --build-arg NGINX_SSL=true -t $(NAME):$(VERSION) --rm .
+	docker build --build-arg NGINX_SSL=true --build-arg VCS_REF=`git rev-parse --short HEAD` -t $(NAME):$(VERSION) --rm .
 
 build_test:
-	docker build --build-arg NGINX_SSL=true --build-arg DEBUG=true -t $(NAME):$(VERSION) --rm .
+	docker build --build-arg NGINX_SSL=true --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg DEBUG=true -t $(NAME):$(VERSION) --rm .
 
 clean_images:
 	docker rmi $(NAME):latest $(NAME):$(VERSION) || true

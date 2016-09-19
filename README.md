@@ -1,4 +1,7 @@
 # docker-nginx-ssl
+
+[![](https://images.microbadger.com/badges/image/madharjan/docker-nginx-ssl.svg)](http://microbadger.com/images/madharjan/docker-nginx-ssl "Get your own image badge on microbadger.com")
+
 Docker container for Nginx with Certbot SSL based on [madharjan/docker-nginx](https://github.com/madharjan/docker-nginx/)
 
 * Nginx 1.4.6 & Certbot SSL (docker-nginx-ssl)

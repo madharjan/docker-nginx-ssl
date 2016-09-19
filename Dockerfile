@@ -1,10 +1,12 @@
 FROM madharjan/docker-nginx-onbuild:1.4.6
 MAINTAINER Madhav Raj Maharjan <madhav.maharjan@gmail.com>
 
-LABEL description="Docker container for Nginx with SSL" os_version="Ubuntu 14.04"
-
+ARG VCS_REF
 ARG NGINX_SSL
 ARG DEBUG=false
+
+LABEL description="Docker container for Nginx with SSL" os_version="Ubuntu ${UBUNTU_VERSION}" \
+      org.label-schema.vcs-ref=${VCS_REF} org.label-schema.vcs-url="https://github.com/madharjan/docker-nginx-ssl"
 
 ENV NGINX_SSL ${NGINX_SSL}
 
