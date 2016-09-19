@@ -26,3 +26,4 @@ release: test tag_latest
 	@if ! head -n 1 Changelog.md | grep -q 'release date'; then echo 'Please note the release date in Changelog.md.' && false; fi
 	docker push $(NAME)
 	@echo "*** Don't forget to create a tag. git tag $(VERSION) && git push origin $(VERSION) ***"
+	curl -X POST https://hooks.microbadger.com/images/madharjan/docker-nginx-ssl/DU0MPYgUEFj9TVUGoJ_sWbZx6Kk=
