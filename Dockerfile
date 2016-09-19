@@ -3,7 +3,7 @@ MAINTAINER Madhav Raj Maharjan <madhav.maharjan@gmail.com>
 
 LABEL description="Docker container for Nginx with SSL" os_version="Ubuntu 14.04"
 
-ENV HOME /root
+ARG NGINX_SSL
 ARG DEBUG=false
 
 RUN mkdir -p /build
