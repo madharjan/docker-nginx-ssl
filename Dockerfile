@@ -6,6 +6,8 @@ LABEL description="Docker container for Nginx with SSL" os_version="Ubuntu 14.04
 ARG NGINX_SSL
 ARG DEBUG=false
 
+ENV NGINX_SSL ${NGINX_SSL}
+
 RUN mkdir -p /build
 COPY . /build
 

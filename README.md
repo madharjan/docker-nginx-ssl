@@ -44,7 +44,7 @@ git push origin 1.4.6
 ```
 docker run -d -t \
   --name nginx \
-  madharjan/docker-nginx-ssl:1.4.6 /sbin/my_init
+  madharjan/docker-nginx-ssl:1.4.6
 ```
 
 **Prepare folder on host for container volumes**
@@ -83,7 +83,7 @@ docker run -d -t \
   -v /opt/docker/nginx/log:/var/log/nginx \
   -v /opt/docker/certbot:/etc/certbot \
   --name nginx \
-  madharjan/docker-nginx-ssl:1.4.6 /sbin/my_init
+  madharjan/docker-nginx-ssl:1.4.6
 ```
 
 **Configure DNS server for domain**
@@ -160,7 +160,7 @@ ExecStart=/usr/bin/docker run \
   -v /opt/docker/nginx/log:/var/log/nginx \
   -v /opt/docker/certbot/etc:/etc/certbot \
   --name nginx \
-  madharjan/docker-nginx-ssl:1.4.6 /sbin/my_init
+  madharjan/docker-nginx-ssl:1.4.6
 
 ExecStop=/usr/bin/docker stop -t 2 nginx
 
