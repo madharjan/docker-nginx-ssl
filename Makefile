@@ -7,16 +7,43 @@ VERSION = 1.4.6
 all: build
 
 build:
-	docker build --build-arg NGINX_SSL=true --build-arg VCS_REF=`git rev-parse --short HEAD` -t $(NAME):$(VERSION) --rm .
+	docker build \
+	 --build-arg VCS_REF=`git rev-parse --short HEAD` \
+	 --build-arg DEBUG=true \
+	 -t $(NAME):$(VERSION) --rm .
 
-build_test:
-	docker build --build-arg NGINX_SSL=true --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg DEBUG=true -t $(NAME):$(VERSION) --rm .
+run:
+	mkdir -p ./test/etc
+	mkdir -p ./test/html
 
-clean_images:
-	docker rmi $(NAME):latest $(NAME):$(VERSION) || true
+	docker run -d -t \
+		-e DEBUG=true \
+		-e CERTBOT_STAGE=true \
+		-e SSL_DOMAIN=mycompany.com \
+		-e SSL_EMAIL=nobody@myemail.com \
+		-e SSL_PREFIX=mail \
+	  -v "`pwd`/test/etc":/etc/nginx/conf.d \
+		-v "`pwd`/test/html":/usr/share/nginx/html \
+		-v "`pwd`/test/certbot":/etc/certbot \
+		--name nginx -t $(NAME):$(VERSION)
 
-test:
-	env NAME=$(NAME) VERSION=$(VERSION) ./test/test.sh
+	docker exec nginx /bin/bash -c "echo '127.0.0.1 mycompany.com' >> /etc/hosts"
+	docker exec nginx /bin/bash -c "echo '127.0.0.1 mail.mycompany.com' >> /etc/hosts"
+
+	docker run -d -t \
+		-e DEBUG=true \
+		-e DISABLE_SSL=1 \
+		--name nginx_no_ssl -t $(NAME):$(VERSION)
+
+tests:
+	./bats/bin/bats test/tests.bats
+
+clean:
+	docker stop nginx nginx_no_ssl || true
+	docker rm nginx nginx_no_ssl || true
+
+	sudo rm -rf ./test/etc
+	sudo rm -rf ./test/html
 
 tag_latest:
 	docker tag $(NAME):$(VERSION) $(NAME):latest
@@ -27,3 +54,6 @@ release: test tag_latest
 	docker push $(NAME)
 	@echo "*** Don't forget to create a tag. git tag $(VERSION) && git push origin $(VERSION) ***"
 	curl -X POST https://hooks.microbadger.com/images/madharjan/docker-nginx-ssl/DU0MPYgUEFj9TVUGoJ_sWbZx6Kk=
+
+clean_images:
+	docker rmi $(NAME):latest $(NAME):$(VERSION) || true
