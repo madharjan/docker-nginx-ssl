@@ -42,8 +42,8 @@ clean:
 	docker stop nginx nginx_no_ssl || true
 	docker rm nginx nginx_no_ssl || true
 
-	sudo rm -rf ./test/etc
-	sudo rm -rf ./test/html
+	rm -rf ./test/etc
+	rm -rf ./test/html
 
 tag_latest:
 	docker tag $(NAME):$(VERSION) $(NAME):latest
