@@ -39,11 +39,10 @@ tests:
 	./bats/bin/bats test/tests.bats
 
 clean:
+	docker exec -t nginx /bin/bash -c "rm -rf /etc/nginx/conf.d/*" || true
+	docker exec -t nginx /bin/bash -c "rm -rf /usr/share/nginx/html/*" || true
 	docker stop nginx nginx_no_ssl || true
 	docker rm nginx nginx_no_ssl || true
-
-	rm -rf ./test/etc
-	rm -rf ./test/html
 
 tag_latest:
 	docker tag $(NAME):$(VERSION) $(NAME):latest
