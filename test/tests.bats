@@ -18,7 +18,7 @@
   [ "$status" -eq 1 ]
 }
 
-@test "checking request: 301 (index.html via http)" {
+@test "checking request: status (index.html via http)" {
   run docker exec nginx /bin/bash -c "curl -I -s http://mycompany.com/index.html | head -n 1 | cut -d$' ' -f2"
   [ "$status" -eq 0 ]
   [ "$output" -eq 301 ]
@@ -30,7 +30,7 @@
   [ "$output" -eq 18 ]
 }
 
-@test "checking request: 200 (index.html via https)" {
+@test "checking request: status (index.html via https)" {
   run docker exec nginx /bin/bash -c "curl -k -I -s -L https://mail.mycompany.com/index.html | head -n 1 | cut -d$' ' -f2"
   [ "$status" -eq 0 ]
   [ "$output" -eq 200 ]
