@@ -13,8 +13,9 @@ build:
 	 -t $(NAME):$(VERSION) --rm .
 
 run:
-	mkdir -p ./test/etc
-	mkdir -p ./test/html
+	rm -rf /tmp/nginx-ssl
+	mkdir -p /tmp/nginx-ssl/etc
+	mkdir -p /tmp/nginx-ssl/html
 
 	docker run -d -t \
 		-e DEBUG=true \
@@ -22,27 +23,28 @@ run:
 		-e SSL_DOMAIN=mycompany.com \
 		-e SSL_EMAIL=nobody@myemail.com \
 		-e SSL_PREFIX=mail \
-	  -v "`pwd`/test/etc":/etc/nginx/conf.d \
-		-v "`pwd`/test/html":/usr/share/nginx/html \
+	  -v /tmp/nginx-ssl/etc:/etc/nginx/conf.d \
+		-v /tmp/nginx-ssl/html:/usr/share/nginx/html \
 		-v "`pwd`/test/certbot":/etc/certbot \
-		--name nginx -t $(NAME):$(VERSION)
+		--name nginx-ssl -t $(NAME):$(VERSION)
 
-	docker exec nginx /bin/bash -c "echo '127.0.0.1 mycompany.com' >> /etc/hosts"
-	docker exec nginx /bin/bash -c "echo '127.0.0.1 mail.mycompany.com' >> /etc/hosts"
+	docker exec nginx-ssl /bin/bash -c "echo '127.0.0.1 mycompany.com' >> /etc/hosts"
+	docker exec nginx-ssl /bin/bash -c "echo '127.0.0.1 mail.mycompany.com' >> /etc/hosts"
 
 	docker run -d -t \
 		-e DEBUG=true \
 		-e DISABLE_SSL=1 \
-		--name nginx_no_ssl -t $(NAME):$(VERSION)
+		--name nginx-ssl_no_ssl -t $(NAME):$(VERSION)
 
 tests:
 	./bats/bin/bats test/tests.bats
 
 clean:
-	docker exec -t nginx /bin/bash -c "rm -rf /etc/nginx/conf.d/*" || true
-	docker exec -t nginx /bin/bash -c "rm -rf /usr/share/nginx/html/*" || true
-	docker stop nginx nginx_no_ssl || true
-	docker rm nginx nginx_no_ssl || true
+	docker exec -t nginx-ssl /bin/bash -c "rm -rf /etc/nginx/conf.d/*" || true
+	docker exec -t nginx-ssl /bin/bash -c "rm -rf /usr/share/nginx/html/*" || true
+	docker stop nginx-ssl nginx-ssl_no_ssl || true
+	docker rm nginx-ssl nginx-ssl_no_ssl || true
+	rm -rf /tmp/nginx-ssl || true
 
 tag_latest:
 	docker tag $(NAME):$(VERSION) $(NAME):latest
