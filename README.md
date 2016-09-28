@@ -77,7 +77,7 @@ sudo mkdir -p /opt/docker/certbot/
 docker stop nginx
 docker rm nginx
 
-docker run -d -t \
+docker run -d \
   -e DOMAIN=mycompany.com \
   -e EMAIL=me@email.com \
   -p 80:80 \

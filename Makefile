@@ -17,7 +17,7 @@ run:
 	mkdir -p /tmp/nginx-ssl/etc
 	mkdir -p /tmp/nginx-ssl/html
 
-	docker run -d -t \
+	docker run -d \
 		-e DEBUG=true \
 		-e CERTBOT_STAGE=true \
 		-e SSL_DOMAIN=mycompany.com \
@@ -26,22 +26,22 @@ run:
 	  -v /tmp/nginx-ssl/etc:/etc/nginx/conf.d \
 		-v /tmp/nginx-ssl/html:/usr/share/nginx/html \
 		-v "`pwd`/test/certbot":/etc/certbot \
-		--name nginx-ssl -t $(NAME):$(VERSION)
+		--name nginx-ssl $(NAME):$(VERSION)
 
 	docker exec nginx-ssl /bin/bash -c "echo '127.0.0.1 mycompany.com' >> /etc/hosts"
 	docker exec nginx-ssl /bin/bash -c "echo '127.0.0.1 mail.mycompany.com' >> /etc/hosts"
 
-	docker run -d -t \
+	docker run -d \
 		-e DEBUG=true \
 		-e DISABLE_SSL=1 \
-		--name nginx-ssl_no_ssl -t $(NAME):$(VERSION)
+		--name nginx-ssl_no_ssl $(NAME):$(VERSION)
 
 tests:
 	./bats/bin/bats test/tests.bats
 
 clean:
-	docker exec -t nginx-ssl /bin/bash -c "rm -rf /etc/nginx/conf.d/*" || true
-	docker exec -t nginx-ssl /bin/bash -c "rm -rf /usr/share/nginx/html/*" || true
+	docker exec nginx-ssl /bin/bash -c "rm -rf /etc/nginx/conf.d/*" || true
+	docker exec nginx-ssl /bin/bash -c "rm -rf /usr/share/nginx/html/*" || true
 	docker stop nginx-ssl nginx-ssl_no_ssl || true
 	docker rm nginx-ssl nginx-ssl_no_ssl || true
 	rm -rf /tmp/nginx-ssl || true
