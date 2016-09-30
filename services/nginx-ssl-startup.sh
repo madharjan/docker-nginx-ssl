@@ -37,19 +37,31 @@ else
     /usr/bin/openssl dhparam -out /etc/certbot/dhparam.pem 2048
   fi
 
-  cp /config/etc/nginx-ssl/conf.d/default.conf /etc/nginx/conf.d/default.conf
-  cp /config/etc/nginx-ssl/conf.d/default-ssl.conf /etc/nginx/conf.d/default-ssl.conf
-  export SSL_DOMAIN SSL_EMAIL SSL_PREFIX
-  perl -p -i -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' /etc/nginx/conf.d/default-ssl.conf
+  if [ ! -f /etc/nginx/conf.d/default ]; then
+    cp /config/etc/nginx-ssl/conf.d/default.conf /etc/nginx/conf.d/default.conf
+  fi
 
-  cp /etc/certbot/renewal/${SSL_PREFIX}.${SSL_DOMAIN}.conf /etc/certbot/renewal/${SSL_PREFIX}.${SSL_DOMAIN}.conf.orig
-  sed -e "s/authenticator = .*/authenticator = webroot/g" -i /etc/certbot/renewal/${SSL_PREFIX}.${SSL_DOMAIN}.conf
-  echo "webroot_path = /etc/certbot/tmp" >> /etc/certbot/renewal/${SSL_PREFIX}.${SSL_DOMAIN}.conf
-  echo "[[webroot_map]]" >> /etc/certbot/renewal/${SSL_PREFIX}.${SSL_DOMAIN}.conf
-  echo "${SSL_PREFIX}.${SSL_DOMAIN} = /etc/certbot/tmp" >> /etc/certbot/renewal/${SSL_PREFIX}.${SSL_DOMAIN}.conf
+  if [ ! -f /etc/nginx/conf.d/default-ssl.conf ]; then
+    cp /config/etc/nginx-ssl/conf.d/default-ssl.conf /etc/nginx/conf.d/default-ssl.conf
+    export SSL_DOMAIN SSL_EMAIL SSL_PREFIX
+    perl -p -i -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' /etc/nginx/conf.d/default-ssl.conf
+  fi
 
-  crontab -l cronjob
-  echo "0 0 * * * /usr/local/sbin/certbot-auto certonly -t -n --no-self-upgrade --agree-tos --standalone --config-dir /etc/certbot ${CERTBOT_ENV} -m ${SSL_EMAIL} -d ${SSL_PREFIX}.${SSL_DOMAIN}" >> cronjob
-  crontab cronjob
-  rm cronjob
+  if [ -f /etc/certbot/renewal/${SSL_PREFIX}.${SSL_DOMAIN}.conf ]; then
+    cp /etc/certbot/renewal/${SSL_PREFIX}.${SSL_DOMAIN}.conf /etc/certbot/renewal/${SSL_PREFIX}.${SSL_DOMAIN}.conf.orig
+    sed -e "s/authenticator = .*/authenticator = webroot/g" -i /etc/certbot/renewal/${SSL_PREFIX}.${SSL_DOMAIN}.conf
+    echo "webroot_path = /etc/certbot/tmp" >> /etc/certbot/renewal/${SSL_PREFIX}.${SSL_DOMAIN}.conf
+    echo "[[webroot_map]]" >> /etc/certbot/renewal/${SSL_PREFIX}.${SSL_DOMAIN}.conf
+    echo "${SSL_PREFIX}.${SSL_DOMAIN} = /etc/certbot/tmp" >> /etc/certbot/renewal/${SSL_PREFIX}.${SSL_DOMAIN}.conf
+  fi
+
+  if [ ! $(crontab -l | grep certbot-auto) -eq 0 ]; then
+    set +e
+    crontab -l > cronjob
+    set -e
+    echo "0 0 * * * /usr/local/sbin/certbot-auto certonly -t -n --no-self-upgrade --agree-tos --standalone --config-dir /etc/certbot ${CERTBOT_ENV} -m ${SSL_EMAIL} -d ${SSL_PREFIX}.${SSL_DOMAIN}" >> cronjob
+    crontab cronjob
+    rm cronjob
+  fi
+
 fi
