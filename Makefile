@@ -28,6 +28,8 @@ run:
 		-v "`pwd`/test/certbot":/etc/certbot \
 		--name nginx-ssl $(NAME):$(VERSION)
 
+	sleep 3
+
 	docker exec nginx-ssl /bin/bash -c "echo '127.0.0.1 mycompany.com' >> /etc/hosts"
 	docker exec nginx-ssl /bin/bash -c "echo '127.0.0.1 mail.mycompany.com' >> /etc/hosts"
 
@@ -36,7 +38,10 @@ run:
 		-e DISABLE_SSL=1 \
 		--name nginx-ssl_no_ssl $(NAME):$(VERSION)
 
+	sleep 2
+
 tests:
+	sleep 3
 	./bats/bin/bats test/tests.bats
 
 clean:
