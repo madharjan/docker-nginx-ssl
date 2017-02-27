@@ -69,7 +69,7 @@ www.${DOMAIN}`. 1800 IN CNAME ${DOMAIN}`.
 sudo mkdir -p /opt/docker/nginx/etc/conf.d
 sudo mkdir -p /opt/docker/nginx/html/
 sudo mkdir -p /opt/docker/nginx/log/
-sudo mkdir -p /opt/docker/certbot/
+sudo mkdir -p /opt/docker/certbot/tmp
 ```
 
 **Run `nginx`**
@@ -102,7 +102,8 @@ TimeoutStartSec=0
 
 ExecStartPre=-/bin/mkdir -p /opt/docker/nginx/html
 ExecStartPre=-/bin/mkdir -p /opt/docker/nginx/etc/conf.d
-ExecStartPre=-/bin/mkdir -p /opt/docker/certbot/etc
+ExecStartPre=-/bin/mkdir -p /opt/docker/nginx/log
+ExecStartPre=-/bin/mkdir -p /opt/docker/certbot/tmp
 ExecStartPre=-/usr/bin/docker stop nginx
 ExecStartPre=-/usr/bin/docker rm nginx
 ExecStartPre=-/usr/bin/docker pull madharjan/docker-nginx-ssl:1.4.6
@@ -115,7 +116,7 @@ ExecStart=/usr/bin/docker run \
   -v /opt/docker/nginx/html:/usr/share/nginx/html \
   -v /opt/docker/nginx/etc/conf.d:/etc/nginx/conf.d \
   -v /opt/docker/nginx/log:/var/log/nginx \
-  -v /opt/docker/certbot/etc:/etc/certbot \
+  -v /opt/docker/certbot:/etc/certbot \
   --name nginx \
   madharjan/docker-nginx-ssl:1.4.6
 
