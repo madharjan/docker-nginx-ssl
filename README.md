@@ -57,8 +57,11 @@ git push origin 1.4.6
 ### Nginx with Cetbot SSL
 
 **Configure DNS server for domain**
+
 Replace `${DOMAIN}` with your domain. e.g `mycompany.com`
+
 Replace `${IP-ADDRESS}` with your server IP Address
+
 ```
 ${DOMAIN}`. 1800 IN A ${IP-ADDRESS}`
 www.${DOMAIN}`. 1800 IN CNAME ${DOMAIN}`.
@@ -78,8 +81,8 @@ docker stop nginx
 docker rm nginx
 
 docker run -d \
-  -e DOMAIN=mycompany.com \
-  -e EMAIL=me@email.com \
+  -e SSL_DOMAIN=mycompany.com \
+  -e SSL_EMAIL=me@email.com \
   -p 80:80 \
   -p 443:443 \
   -v /opt/docker/nginx/etc:/etc/nginx/conf.d \
@@ -109,8 +112,8 @@ ExecStartPre=-/usr/bin/docker rm nginx
 ExecStartPre=-/usr/bin/docker pull madharjan/docker-nginx-ssl:1.4.6
 
 ExecStart=/usr/bin/docker run \
-  -e DOMAIN=mycompany.com \
-  -e EMAIL=me@email.com \
+  -e SSL_DOMAIN=mycompany.com \
+  -e SSL_EMAIL=me@email.com \
   -p 80:80 \
   -p 443:443 \
   -v /opt/docker/nginx/html:/usr/share/nginx/html \

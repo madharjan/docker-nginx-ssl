@@ -24,11 +24,12 @@ if [ ! "${DISABLE_SSL}" -eq 0 ]; then
   rm -f /etc/nginx/conf.d/default.conf
 else
   if [ ! -f /etc/certbot/live/${SSL_PREFIX}.${SSL_DOMAIN}/privkey.pem ]; then
-    /usr/local/sbin/certbot-auto certonly -t -n \
+    /usr/local/sbin/certbot-auto certonly -n \
       --no-self-upgrade \
       --agree-tos \
       --standalone \
       --config-dir /etc/certbot \
+      --logs-dir /var/log/certbot \
       ${CERTBOT_ENV} \
       -m ${SSL_EMAIL} -d ${SSL_PREFIX}.${SSL_DOMAIN}
   fi
@@ -59,6 +60,6 @@ else
     fi
   fi
 
-  (crontab -l ; echo "0 0 * * * /usr/local/sbin/certbot-auto certonly -t -n --no-self-upgrade --agree-tos --standalone --config-dir /etc/certbot ${CERTBOT_ENV} -m ${SSL_EMAIL} -d ${SSL_PREFIX}.${SSL_DOMAIN}") | sort - | uniq - | crontab -
+  (crontab -l ; echo "0 0 * * * /usr/local/sbin/certbot-auto -n --no-self-upgrade --agree-tos --config-dir /etc/certbot --logs-dir /var/log/certbot renew") | sort - | uniq - | crontab -
 
 fi
