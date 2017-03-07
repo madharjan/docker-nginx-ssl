@@ -4,7 +4,13 @@
 
 Docker container for Nginx with Certbot SSL based on [madharjan/docker-nginx](https://github.com/madharjan/docker-nginx/)
 
-* Nginx 1.4.6 & Certbot SSL (docker-nginx-ssl)
+**Features**
+* Environment variables to configure Certbot SSL
+* Preconfigured to redirect to prefix (e.g www) for request without subdomain (e.g http://company.com to http://www.company.com)
+* Preconfigured to redirect all HTTP to HTTPS 
+* Bats ([sstephenson/bats](https://github.com/sstephenson/bats/)) based test cases
+
+## Nginx 1.4.6 & Certbot SSL (docker-nginx-ssl)
 
 **Environment**
 
