@@ -1,2 +1,3 @@
-test/html
 test/etc
+test/html
+.DS_Store

@@ -1,4 +1,4 @@
-FROM madharjan/docker-nginx:1.4.6
+FROM madharjan/docker-nginx:1.10.3
 MAINTAINER Madhav Raj Maharjan <madhav.maharjan@gmail.com>
 
 ARG VCS_REF
@@ -12,7 +12,7 @@ COPY . /build
 
 RUN /build/scripts/install.sh && /build/scripts/cleanup.sh
 
-VOLUME ["/etc/nginx/conf.d", "/usr/share/nginx/html", "/var/log/nginx", "/etc/certbot"]
+VOLUME ["/etc/nginx/conf.d", "/var/www/html", "/var/log/nginx", "/etc/certbot"]
 
 CMD ["/sbin/my_init"]
 

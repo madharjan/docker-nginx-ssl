@@ -25,5 +25,9 @@ chmod a+x /usr/local/sbin/certbot-auto
 /usr/local/sbin/certbot-auto --non-interactive --config-dir /etc/certbot --logs-dir /var/log/certbot renew
 
 mkdir -p /etc/my_init.d
-cp /build/services/nginx-ssl-startup.sh /etc/my_init.d
-chmod 750 /etc/my_init.d/nginx-ssl-startup.sh
+cp /build/services/18-nginx-ssl.sh /etc/my_init.d
+chmod 750 /etc/my_init.d/18-nginx-ssl.sh
+
+cp /build/bin/nginx-ssl-systemd-unit /usr/local/bin
+chmod 750 /usr/local/bin/gen-systemd-unit
+
