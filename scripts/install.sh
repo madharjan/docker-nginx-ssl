@@ -22,7 +22,7 @@ mv certbot-auto /usr/local/sbin
 chmod a+x /usr/local/sbin/certbot-auto
 
 #/usr/local/sbin/certbot-auto --non-interactive --os-packages-only --logs-dir /var/log/certbot
-/usr/local/sbin/certbot-auto --non-interactive --config-dir /etc/certbot --logs-dir /var/log/certbot renew
+/usr/local/sbin/certbot-auto --verbose --non-interactive --config-dir /etc/certbot --logs-dir /var/log/certbot renew
 
 mkdir -p /etc/my_init.d
 cp /build/services/18-nginx-ssl.sh /etc/my_init.d
