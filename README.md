@@ -16,17 +16,17 @@ Docker container for Nginx with Certbot SSL based on [madharjan/docker-nginx](ht
 
 ### Environment
 
-| Variable       | Default | Example        |
-|----------------|---------|----------------|
-| DISABLE_NGINX  | 0       | 1 (to disable) |
-| DISABLE_SSL    | 0       | 1 (to disable) |
-| SSL_DOMAIN     |         | mycompany.com  |
-| SSL_EMAIL      |         | me@email.com   |
-| SSL_PREFIX     | www     |                |
-| CERTBOT_STAGE  |         | true           |
+| Variable            | Default | Example                                                          |
+|---------------------|---------|------------------------------------------------------------------|
+| DISABLE_NGINX       | 0       | 1 (to disable)                                                   |
+| DISABLE_SSL         | 0       | 1 (to disable)                                                   |
+| SSL_DOMAIN          |         | mycompany.com                                                    |
+| SSL_EMAIL           |         | me@email.com                                                     |
+| SSL_PREFIX          | www     | mail                                                             |
+| CERTBOT_STAGE       |         | true                                                             |
 | INSTALL_PROJECT     | 0       | 1 (to enable)                                                    |
 | PROJECT_GIT_REPO    |         | https://github.com/BlackrockDigital/startbootstrap-creative.git  |
-| PROJECT_GIT_TAG     |         | v1.0.1                                                                 |
+| PROJECT_GIT_TAG     |         | v1.0.1                                                           |
 
 ## Build
 
@@ -92,8 +92,8 @@ sudo mkdir -p /opt/docker/certbot/tmp
 ### Run `docker-nginx-ssl`
 
 ```bash
-docker stop nginx
-docker rm nginx
+docker stop nginx-ssl
+docker rm nginx-ssl
 
 docker run -d \
   -e SSL_DOMAIN=mycompany.com \
@@ -104,7 +104,7 @@ docker run -d \
   -v /opt/docker/nginx/html:/var/www/html \
   -v /opt/docker/nginx/log:/var/log/nginx \
   -v /opt/docker/certbot:/etc/certbot \
-  --name nginx \
+  --name nginx-ssl \
   madharjan/docker-nginx-ssl:1.10.3
 ```
 
@@ -125,8 +125,8 @@ ExecStartPre=-/bin/mkdir -p /opt/docker/nginx/etc/conf.d
 ExecStartPre=-/bin/mkdir -p /opt/docker/nginx/html
 ExecStartPre=-/bin/mkdir -p /opt/docker/nginx/log
 ExecStartPre=-/bin/mkdir -p /opt/docker/certbot/tmp
-ExecStartPre=-/usr/bin/docker stop nginx
-ExecStartPre=-/usr/bin/docker rm nginx
+ExecStartPre=-/usr/bin/docker stop nginx-ssl
+ExecStartPre=-/usr/bin/docker rm nginx-ssl
 ExecStartPre=-/usr/bin/docker pull madharjan/docker-nginx-ssl:1.10.3
 
 ExecStart=/usr/bin/docker run \
@@ -138,8 +138,8 @@ ExecStart=/usr/bin/docker run \
   -v /opt/docker/nginx/etc/conf.d:/etc/nginx/conf.d \
   -v /opt/docker/nginx/log:/var/log/nginx \
   -v /opt/docker/certbot:/etc/certbot \
-  --name nginx \
-  madharjan/docker-nginx-ssl:1.4.6
+  --name nginx-ssl \
+  madharjan/docker-nginx-ssl:1.10.3
 
 ExecStop=/usr/bin/docker stop -t 2 nginx
 
@@ -156,11 +156,11 @@ WantedBy=multi-user.target
 | VERSION             | 1.10.3           | latest                                                           |
 | INSTALL_PROJECT     | 0                | 1 (to enable)                                                    |
 | PROJECT_GIT_REPO    |                  | https://github.com/BlackrockDigital/startbootstrap-creative.git  |
-| PROJECT_GIT_TAG     | HEAD             | v5.1.4                                                          |
-| SSL_PORT            | 443              | 8443           |
-| SSL_DOMAIN          |                  | mycompany.com  |
-| SSL_EMAIL           |                  | me@email.com   |
-| SSL_PREFIX          | www              |                |
+| PROJECT_GIT_TAG     | HEAD             | v5.1.4                                                           |
+| SSL_PORT            | 443              | 8443                                                             |
+| SSL_DOMAIN          |                  | mycompany.com                                                    |
+| SSL_EMAIL           |                  | me@email.com                                                     |
+| SSL_PREFIX          | www              | mail                                                             |
 
 ```bash
 docker run --rm -it \
@@ -170,11 +170,12 @@ docker run --rm -it \
   -e INSTALL_PROJECT=1 \
   -e PROJECT_GIT_REPO=https://github.com/BlackrockDigital/startbootstrap-creative.git \
   -e PROJECT_GIT_TAG=v5.1.4 \
-  -e SSL_PORt=443 \
+  -e SSL_PORT=443 \
   -e SSL_DOMAIN=mycompany.com \
   -e SSL_EMAIL=me@email.com \
+  -e SSL_PREFIX=www \
   madharjan/docker-nginx-ssl:1.10.3 \
-  /bin/sh -c "gen-systemd-unit" | \
+  /bin/sh -c "nginx-ssl-systemd-unit" | \
   sudo tee /etc/systemd/system/nginx-ssl.service
 
 sudo systemctl enable nginx-ssl

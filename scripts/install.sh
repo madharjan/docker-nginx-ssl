@@ -29,5 +29,5 @@ cp /build/services/18-nginx-ssl.sh /etc/my_init.d
 chmod 750 /etc/my_init.d/18-nginx-ssl.sh
 
 cp /build/bin/nginx-ssl-systemd-unit /usr/local/bin
-chmod 750 /usr/local/bin/gen-systemd-unit
+chmod 750 /usr/local/bin/nginx-ssl-systemd-unit
 

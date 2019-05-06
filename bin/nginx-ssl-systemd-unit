@@ -12,6 +12,10 @@ DEF_VERSION=1.10.3
 DEF_INSTALL_PROJECT=0
 DEF_PROJECT_GIT_REPO=
 DEF_PROJECT_GIT_TAG=
+DEF_SSL_PORT=443 
+DEF_SSL_DOMAIN=
+DEF_SSL_EMAIL=
+DEF_SSL_PREFIX=www 
 
 PORT=${PORT:-$DEF_PORT}
 VOLUME_HOME=${VOLUME_HOME:-$DEF_VOLUME_HOME}
@@ -20,6 +24,11 @@ VERSION=${VERSION:-$DEF_VERSION}
 INSTALL_PROJECT=${INSTALL_PROJECT:-$DEF_INSTALL_PROJECT}
 PROJECT_GIT_REPO=${PROJECT_GIT_REPO:-$DEF_PROJECT_GIT_REPO}
 PROJECT_GIT_TAG=${PROJECT_GIT_TAG:-$DEF_PROJECT_GIT_TAG}
+
+SSL_PORT=${SSL_PORT:-$DEF_SSL_PORT}
+SSL_DOMAIN=${SSL_DOMAIN:-$DEF_SSL_DOMAIN}
+SSL_EMAIL=${SSL_EMAIL:-$DEF_SSL_EMAIL}
+SSL_PREFIX=${SSL_PREFIX:-$DEF_SSL_PREFIX}
 
 /bin/cat <<-EOF
 [Unit]
@@ -33,19 +42,25 @@ TimeoutStartSec=0
 ExecStartPre=-/bin/mkdir -p ${VOLUME_HOME}/nginx/etc/conf.d
 ExecStartPre=-/bin/mkdir -p ${VOLUME_HOME}/nginx/html
 ExecStartPre=-/bin/mkdir -p ${VOLUME_HOME}/nginx/log
-ExecStartPre=-/usr/bin/docker stop nginx
-ExecStartPre=-/usr/bin/docker rm nginx
+ExecStartPre=-/bin/mkdir -p ${VOLUME_HOME}/certbot/tmp
+ExecStartPre=-/usr/bin/docker stop nginx-ssl
+ExecStartPre=-/usr/bin/docker rm nginx-ssl
 ExecStartPre=-/usr/bin/docker pull madharjan/docker-nginx:${VERSION}
 
 ExecStart=/usr/bin/docker run \\
 -p ${PORT}:80 \\
+-p ${SSL_PORT}:443 \\
 -e INSTALL_PROJECT=${INSTALL_PROJECT} \\
 -e PROJECT_GIT_REPO=${PROJECT_GIT_REPO} \\
 -e PROJECT_GIT_TAG=${PROJECT_GIT_TAG} \\
+-e SSL_DOMAIN=${SSL_DOMAIN} \\
+-e SSL_EMAIL=${SSL_EMAIL} \\
+-e SSL_PREFIX=${SSL_PREFIX} \\
 -v ${VOLUME_HOME}/nginx/etc/conf.d:/etc/nginx/conf.d \\
 -v ${VOLUME_HOME}/nginx/html:/var/www/html \\
 -v ${VOLUME_HOME}/nginx/log:/var/log/nginx \\
---name nginx \\
+-v ${VOLUME_HOME}/certbot:/etc/certbot \\
+--name nginx-ssl \\
 madharjan/docker-nginx:${VERSION}
 
 ExecStop=/usr/bin/docker stop -t 2 nginx
