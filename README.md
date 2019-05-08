@@ -6,6 +6,7 @@
 Docker container for Nginx with Certbot SSL based on [madharjan/docker-nginx](https://github.com/madharjan/docker-nginx/)
 
 ## Features
+
 * Environment variables to configure Certbot SSL
 * Preconfigured to redirect to prefix (e.g www) for request without subdomain (e.g http://company.com to http://www.company.com)
 * Preconfigured to redirect all HTTP to HTTPS 

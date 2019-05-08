@@ -68,6 +68,16 @@ else
     fi
   fi
 
-  (crontab -l ; echo "0 0 * * * /usr/local/sbin/certbot-auto -n --no-self-upgrade --agree-tos --config-dir /etc/certbot --logs-dir /var/log/certbot renew") | sort - | uniq - | crontab -
+
+cat <<EOF > /etc/cron.daily/cerbot
+#!/bin/sh
+
+/usr/local/sbin/certbot-auto -n \
+  --no-self-upgrade \
+  --agree-tos \
+  --config-dir /etc/certbot \
+  --logs-dir /var/log/certbot \
+  renew
 
 fi
+EOF
