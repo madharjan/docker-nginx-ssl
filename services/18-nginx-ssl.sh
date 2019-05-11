@@ -78,6 +78,6 @@ cat <<EOF > /etc/cron.daily/cerbot
   --config-dir /etc/certbot \
   --logs-dir /var/log/certbot \
   renew
+EOF
 
 fi
-EOF
