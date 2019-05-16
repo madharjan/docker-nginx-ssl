@@ -78,6 +78,7 @@ clean: stop
 	docker rm nginx-ssl nginx-ssl_no_ssl nginx-ssl_project|| true
 	rm -rf /tmp/nginx-ssl || true
 	rm -rf /tmp/nginx-ssl_project || true
+	docker images | grep "^<none>" | awk '{print$3 }' | xargs docker rmi || true
 
 tag_latest:
 	docker tag $(NAME):$(VERSION) $(NAME):latest

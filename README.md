@@ -70,10 +70,9 @@ git push origin 1.10.3
 
 ### Nginx with Cetbot SSL
 
-**Configure DNS server for domain**
+#### Configure DNS server for domain
 
 Replace `${DOMAIN}` with your domain. e.g `mycompany.com`
-
 Replace `${IP-ADDRESS}` with your server IP Address
 
 ```txt
