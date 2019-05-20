@@ -10,67 +10,54 @@ Docker container for Nginx with Certbot SSL based on [madharjan/docker-nginx](ht
 * Environment variables to configure Certbot SSL
 * Preconfigured to redirect to prefix (e.g www) for request without subdomain (e.g http://company.com to http://www.company.com)
 * Preconfigured to redirect all HTTP to HTTPS 
-* Bats ([bats-core/bats-core](https://github.com/bats-core/bats-core)) based test cases
+* Bats [bats-core/bats-core](https://github.com/bats-core/bats-core) based test cases
 * Deploy/update web projects from git
+* Setup reverse proxy
 
 ## Nginx 1.10.3 & Certbot SSL (docker-nginx-ssl)
 
 ### Environment
 
-| Variable            | Default | Example                                                          |
-|---------------------|---------|------------------------------------------------------------------|
-| DISABLE_NGINX       | 0       | 1 (to disable)                                                   |
-| DISABLE_SSL         | 0       | 1 (to disable)                                                   |
-| SSL_DOMAIN          |         | mycompany.com                                                    |
-| SSL_EMAIL           |         | me@email.com                                                     |
-| SSL_PREFIX          | www     | mail                                                             |
-| CERTBOT_STAGE       |         | true                                                             |
-| INSTALL_PROJECT     | 0       | 1 (to enable)                                                    |
-| PROJECT_GIT_REPO    |         | https://github.com/BlackrockDigital/startbootstrap-creative.git  |
-| PROJECT_GIT_TAG     |         | v1.0.1                                                           |
+| Variable             | Default | Example                                                          |
+|----------------------|---------|------------------------------------------------------------------|
+| DISABLE_NGINX        | 0       | 1 (to disable)                                                   |
+| DISABLE_SSL          | 0       | 1 (to disable)                                                   |
+| SSL_DOMAIN           |         | mycompany.com                                                    |
+| SSL_EMAIL            |         | me@email.com                                                     |
+| SSL_PREFIX           | www     | mail                                                             |
+| CERTBOT_STAGE        |         | true                                                             |
+| INSTALL_PROJECT      | 0       | 1 (to enable)                                                    |
+| PROJECT_GIT_REPO     |         | https://github.com/BlackrockDigital/startbootstrap-creative.git  |
+| PROJECT_GIT_TAG      |         | v5.1.4                                                           |
+| DEFAULT_PROXY        | 0       | 1 (to enable)                                                    |
+| PROXY_SCHEME         | http    | https                                                            |
+| PROXY_HOST           |         | 127.0.0.1                                                        |
+| PROXY_PORT           | 8080    | 8000                                                             |
+| LINK_PROXY_CONTAINER |         |                                                            
 
 ## Build
 
-### Clone this project
+## Build
 
 ```bash
+# clone project
 git clone https://github.com/madharjan/docker-nginx-ssl
 cd docker-nginx-ssl
-```
-
-### Build Container
-
-```bash
-# login to DockerHub
-docker login
 
 # build
 make
 
 # tests
 make run
-make tests
+make test
+
+# clean
 make clean
-
-# tag
-make tag_latest
-
-# release
-make release
 ```
 
-### Tag and Commit to Git
+## Run
 
-```bash
-git tag 1.10.3
-git push origin 1.10.3
-```
-
-## Run Container
-
-### Nginx with Cetbot SSL
-
-#### Configure DNS server for domain
+### Configure DNS server for domain
 
 Replace `${DOMAIN}` with your domain. e.g `mycompany.com`
 Replace `${IP-ADDRESS}` with your server IP Address
@@ -80,27 +67,26 @@ ${DOMAIN}`. 1800 IN A ${IP-ADDRESS}`
 www.${DOMAIN}`. 1800 IN CNAME ${DOMAIN}`.
 ```
 
-### Prepare folder on host for container volumes
+**Note**: update environment variables below as necessary
 
 ```bash
+# prepare foldor on host for container volumes
 sudo mkdir -p /opt/docker/nginx/etc/conf.d
 sudo mkdir -p /opt/docker/nginx/html/
 sudo mkdir -p /opt/docker/nginx/log/
 sudo mkdir -p /opt/docker/certbot/tmp
-```
 
-### Run `docker-nginx-ssl`
-
-```bash
+# stop & remove previous instances
 docker stop nginx-ssl
 docker rm nginx-ssl
 
+# run container
 docker run -d \
   -e SSL_DOMAIN=mycompany.com \
   -e SSL_EMAIL=me@email.com \
   -p 80:80 \
   -p 443:443 \
-  -v /opt/docker/nginx/etc:/etc/nginx/conf.d \
+  -v /opt/docker/nginx/etc/conf.d:/etc/nginx/conf.d \
   -v /opt/docker/nginx/html:/var/www/html \
   -v /opt/docker/nginx/log:/var/log/nginx \
   -v /opt/docker/certbot:/etc/certbot \
@@ -108,9 +94,9 @@ docker run -d \
   madharjan/docker-nginx-ssl:1.10.3
 ```
 
-## Run via Systemd
+## Systemd Unit File
 
-### Systemd Unit File - basic example
+**Note**: update environment variables below as necessary
 
 ```txt
 [Unit]
@@ -124,18 +110,17 @@ TimeoutStartSec=0
 ExecStartPre=-/bin/mkdir -p /opt/docker/nginx/etc/conf.d
 ExecStartPre=-/bin/mkdir -p /opt/docker/nginx/html
 ExecStartPre=-/bin/mkdir -p /opt/docker/nginx/log
-ExecStartPre=-/bin/mkdir -p /opt/docker/certbot/tmp
-ExecStartPre=-/usr/bin/docker stop nginx-ssl
-ExecStartPre=-/usr/bin/docker rm nginx-ssl
-ExecStartPre=-/usr/bin/docker pull madharjan/docker-nginx-ssl:1.10.3
+ExecStartPre=-/usr/bin/docker stop nginx
+ExecStartPre=-/usr/bin/docker rm nginx
+ExecStartPre=-/usr/bin/docker pull madharjan/docker-nginx:1.10.3
 
 ExecStart=/usr/bin/docker run \
   -e SSL_DOMAIN=mycompany.com \
   -e SSL_EMAIL=me@email.com \
   -p 80:80 \
   -p 443:443 \
-  -v /opt/docker/nginx/html:/usr/share/nginx/html \
   -v /opt/docker/nginx/etc/conf.d:/etc/nginx/conf.d \
+  -v /opt/docker/nginx/html:/var/www/html \
   -v /opt/docker/nginx/log:/var/log/nginx \
   -v /opt/docker/certbot:/etc/certbot \
   --name nginx-ssl \
@@ -147,37 +132,61 @@ ExecStop=/usr/bin/docker stop -t 2 nginx
 WantedBy=multi-user.target
 ```
 
-### Generate Systemd Unit File - with deploy web projects
+## Generate Systemd Unit File
 
-| Variable            | Default          | Example                                                          |
-|---------------------|------------------|------------------------------------------------------------------|
-| PORT                | 80               | 8080                                                             |
-| VOLUME_HOME         | /opt/docker      | /opt/data                                                        |
-| VERSION             | 1.10.3           | latest                                                           |
-| INSTALL_PROJECT     | 0                | 1 (to enable)                                                    |
-| PROJECT_GIT_REPO    |                  | https://github.com/BlackrockDigital/startbootstrap-creative.git  |
-| PROJECT_GIT_TAG     | HEAD             | v5.1.4                                                           |
-| SSL_PORT            | 443              | 8443                                                             |
-| SSL_DOMAIN          |                  | mycompany.com                                                    |
-| SSL_EMAIL           |                  | me@email.com                                                     |
-| SSL_PREFIX          | www              | mail                                                             |
+| Variable             | Default          | Example                                                          |
+|----------------------|------------------|------------------------------------------------------------------|
+| PORT                 |                  | 80                                                               |
+| VOLUME_HOME          | /opt/docker      | /opt/data                                                        |
+| SSL_PORT             |                  | 443                                                              |
+| SSL_DOMAIN           |                  | mycompany.com                                                    |
+| SSL_EMAIL            |                  | me@email.com                                                     |
+| SSL_PREFIX           | www              | mail                                                             |
+| INSTALL_PROJECT      | 0                | 1 (to enable)  
+| PROJECT_GIT_REPO     |                  | https://github.com/BlackrockDigital/startbootstrap-creative.git  |
+| PROJECT_GIT_TAG      | HEAD             | v5.1.4                                                           |
+| DEFAULT_PROXY        | 0                | 1 (to enable)                                                    |
+| PROXY_SCHEME         | http             | https                                                            |
+| PROXY_HOST           |                  | 127.0.0.1                                                        |
+| PROXY_PORT           | 8080             | 8000                                                             |
+| LINK_PROXY_CONTAINER |                  | nginx-web2py                                                     |
+
+### With deploy web projects
 
 ```bash
-docker run --rm -it \
+# generate nginx.service
+docker run --rm \
   -e PORT=80 \
-  -e VOLUME_HOME=/opt/docker \
-  -e VERSION=1.10.3 \
-  -e INSTALL_PROJECT=1 \
-  -e PROJECT_GIT_REPO=https://github.com/BlackrockDigital/startbootstrap-creative.git \
-  -e PROJECT_GIT_TAG=v5.1.4 \
   -e SSL_PORT=443 \
   -e SSL_DOMAIN=mycompany.com \
   -e SSL_EMAIL=me@email.com \
-  -e SSL_PREFIX=www \
+  -e INSTALL_PROJECT=1 \
+  -e PROJECT_GIT_REPO=https://github.com/BlackrockDigital/startbootstrap-creative.git \
+  -e PROJECT_GIT_TAG=v5.1.4 \
   madharjan/docker-nginx-ssl:1.10.3 \
-  /bin/sh -c "nginx-ssl-systemd-unit" | \
+  nginx-ssl-systemd-unit | \
   sudo tee /etc/systemd/system/nginx-ssl.service
 
-sudo systemctl enable nginx-ssl
-sudo systemctl start nginx-ssl
+sudo systemctl enable nginx
+sudo systemctl start nginx
+```
+
+### With reverse proxy
+
+```bash
+# generate nginx.service
+docker run --rm \
+  -e PORT=80 \
+  -e SSL_PORT=443 \
+  -e SSL_DOMAIN=mycompany.com \
+  -e SSL_EMAIL=me@email.com \
+  -e DEFAULT_PROXY=1 \
+  -e LINK_PROXY_CONTAINER=odoo \
+  -e PROXY_PORT=8080 \
+  madharjan/docker-nginx:1.10.3 \
+  nginx-systemd-unit | \
+  sudo tee /etc/systemd/system/nginx-ssl.service
+
+sudo systemctl enable nginx
+sudo systemctl start nginx
 ```

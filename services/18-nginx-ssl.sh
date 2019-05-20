@@ -7,6 +7,10 @@ if [ "${DEBUG}" = true ]; then
 fi
 
 DISABLE_SSL=${DISABLE_SSL:-0}
+DEFAULT_PROXY=${DEFAULT_PROXY:-0}
+PROXY_HOST=${PROXY_HOST:-}
+PROXY_PORT=${PROXY_PORT:-8080}
+PROXY_SCHEME=${PROXY_SCHEME:-http}
 
 SSL_DOMAIN=${SSL_DOMAIN:-}
 SSL_EMAIL=${SSL_EMAIL:-}
@@ -42,16 +46,26 @@ else
     /usr/bin/openssl dhparam -out /etc/certbot/dhparam.pem 2048
   fi
 
-  if [ -f /etc/nginx/conf.d/default ]; then
-    echo "default.conf already exists"
+  if [ -f /etc/nginx/conf.d/default.conf ]; then
+    echo "Nginx config already exists"
   else 
     cp /config/etc/nginx-ssl/conf.d/default.conf /etc/nginx/conf.d/default.conf
   fi
 
   if [ -f /etc/nginx/conf.d/default-ssl.conf ]; then
-    echo "default-ssl.conf"
+    echo "Nginx SSL config already exists"
   else
-    cp /config/etc/nginx-ssl/conf.d/default-ssl.conf /etc/nginx/conf.d/default-ssl.conf
+    if [ ! "${DEFAULT_PROXY}" -eq 0 ]; then
+      if [ -n "${PROXY_HOST}" ]; then
+        cp /config/etc/nginx-ssl/conf.d/proxy-ssl.conf /etc/nginx/conf.d/default-ssl.conf
+        sed -i "s/##PROXY_HOST##/${PROXY_HOST}/" /etc/nginx/conf.d/default-ssl.conf
+        sed -i "s/##PROXY_PORT##/${PROXY_PORT}/" /etc/nginx/conf.d/default-ssl.conf
+        sed -i "s/##PROXY_SCHEME##/${PROXY_SCHEME}/" /etc/nginx/conf.d/default-ssl.conf
+      fi
+    else 
+      cp /config/etc/nginx-ssl/conf.d/default-ssl.conf /etc/nginx/conf.d/default-ssl.conf
+    fi
+    
     export SSL_DOMAIN SSL_EMAIL SSL_PREFIX
     perl -p -i -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' /etc/nginx/conf.d/default-ssl.conf
   fi
