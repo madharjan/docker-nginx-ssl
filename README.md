@@ -167,8 +167,8 @@ docker run --rm \
   nginx-ssl-systemd-unit | \
   sudo tee /etc/systemd/system/nginx-ssl.service
 
-sudo systemctl enable nginx
-sudo systemctl start nginx
+sudo systemctl enable nginx-ssl
+sudo systemctl start nginx-ssl
 ```
 
 ### With reverse proxy
@@ -187,6 +187,6 @@ docker run --rm \
   nginx-systemd-unit | \
   sudo tee /etc/systemd/system/nginx-ssl.service
 
-sudo systemctl enable nginx
-sudo systemctl start nginx
+sudo systemctl enable nginx-ssl
+sudo systemctl start nginx-ssl
 ```

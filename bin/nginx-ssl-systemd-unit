@@ -100,7 +100,7 @@ ${PORT_LINE}${SSL_PORT_LINE}-v ${VOLUME_HOME}/${NAME}/etc/conf.d:/etc/nginx/conf
 -v ${VOLUME_HOME}/${NAME}/log:/var/log/nginx \\
 -v ${VOLUME_HOME}/certbot:/etc/certbot \\
 --name ${NAME} \\
-madharjan/docker-nginx:${VERSION}
+madharjan/docker-nginx-ssl:${VERSION}
 
 ExecStop=/usr/bin/docker stop -t 2 ${NAME}
 
