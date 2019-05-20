@@ -22,20 +22,20 @@ Docker container for Nginx with Certbot SSL based on [madharjan/docker-nginx](ht
 |----------------------|---------|------------------------------------------------------------------|
 | DISABLE_NGINX        | 0       | 1 (to disable)                                                   |
 | DISABLE_SSL          | 0       | 1 (to disable)                                                   |
+|                      |         |                                                                  |
 | SSL_DOMAIN           |         | mycompany.com                                                    |
 | SSL_EMAIL            |         | me@email.com                                                     |
 | SSL_PREFIX           | www     | mail                                                             |
 | CERTBOT_STAGE        |         | true                                                             |
+|                      |         |                                                                  |
 | INSTALL_PROJECT      | 0       | 1 (to enable)                                                    |
 | PROJECT_GIT_REPO     |         | https://github.com/BlackrockDigital/startbootstrap-creative.git  |
 | PROJECT_GIT_TAG      |         | v5.1.4                                                           |
+|                      |         |                                                                  |
 | DEFAULT_PROXY        | 0       | 1 (to enable)                                                    |
 | PROXY_SCHEME         | http    | https                                                            |
 | PROXY_HOST           |         | 127.0.0.1                                                        |
 | PROXY_PORT           | 8080    | 8000                                                             |
-| LINK_PROXY_CONTAINER |         |                                                            
-
-## Build
 
 ## Build
 
@@ -138,17 +138,22 @@ WantedBy=multi-user.target
 |----------------------|------------------|------------------------------------------------------------------|
 | PORT                 |                  | 80                                                               |
 | VOLUME_HOME          | /opt/docker      | /opt/data                                                        |
+| NAME                 | ngnix-ssl        |                                                                  |
+|                      |                  |                                                                  |
 | SSL_PORT             |                  | 443                                                              |
 | SSL_DOMAIN           |                  | mycompany.com                                                    |
 | SSL_EMAIL            |                  | me@email.com                                                     |
 | SSL_PREFIX           | www              | mail                                                             |
+|                      |                  |                                                                  |
 | INSTALL_PROJECT      | 0                | 1 (to enable)  
 | PROJECT_GIT_REPO     |                  | https://github.com/BlackrockDigital/startbootstrap-creative.git  |
 | PROJECT_GIT_TAG      | HEAD             | v5.1.4                                                           |
+|                      |                  |                                                                  |
 | DEFAULT_PROXY        | 0                | 1 (to enable)                                                    |
 | PROXY_SCHEME         | http             | https                                                            |
 | PROXY_HOST           |                  | 127.0.0.1                                                        |
 | PROXY_PORT           | 8080             | 8000                                                             |
+|                      |                  |                                                                  |
 | LINK_PROXY_CONTAINER |                  | nginx-web2py                                                     |
 
 ### With deploy web projects
@@ -181,12 +186,32 @@ docker run --rm \
   -e SSL_DOMAIN=mycompany.com \
   -e SSL_EMAIL=me@email.com \
   -e DEFAULT_PROXY=1 \
-  -e LINK_PROXY_CONTAINER=odoo \
+  -e PROXY_HOST=odoo \
   -e PROXY_PORT=8080 \
+  -e LINK_CONTAINERS=odoo:odoo,nginx:website \
   madharjan/docker-nginx:1.10.3 \
   nginx-systemd-unit | \
   sudo tee /etc/systemd/system/nginx-ssl.service
 
 sudo systemctl enable nginx-ssl
 sudo systemctl start nginx-ssl
+```
+
+## Add virtualhost reverse proxy config
+
+| Variable             | Default          | Example                                                          |
+|----------------------|------------------|------------------------------------------------------------------|
+| PROXY_VHOST_NAME     |                  | myapp.local                                                      |
+| PROXY_SCHEME         | http             | https                                                            |
+| PROXY_HOST           |                  | 127.0.0.1                                                        |
+| PROXY_PORT           | 8080             | 8000                                                             |
+
+```bash
+# add proxy.conf
+docker exec -it \
+  -e PROXY_VHOST_NAME=myapp \
+  -e PROXY_HOST=172.18.0.5 \
+  -e PROXY_PORT=8080 \
+  nginx \
+  nginx-vhost-proxy-conf
 ```

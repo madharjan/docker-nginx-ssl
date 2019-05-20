@@ -57,7 +57,7 @@ else
   else
     if [ ! "${DEFAULT_PROXY}" -eq 0 ]; then
       if [ -n "${PROXY_HOST}" ]; then
-        cp /config/etc/nginx-ssl/conf.d/proxy-ssl.conf /etc/nginx/conf.d/default-ssl.conf
+        cp /config/etc/nginx-ssl/conf.d/default-ssl-proxy.conf /etc/nginx/conf.d/default-ssl.conf
         sed -i "s/##PROXY_HOST##/${PROXY_HOST}/" /etc/nginx/conf.d/default-ssl.conf
         sed -i "s/##PROXY_PORT##/${PROXY_PORT}/" /etc/nginx/conf.d/default-ssl.conf
         sed -i "s/##PROXY_SCHEME##/${PROXY_SCHEME}/" /etc/nginx/conf.d/default-ssl.conf
