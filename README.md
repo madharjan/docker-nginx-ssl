@@ -205,6 +205,7 @@ sudo systemctl start nginx-ssl
 | PROXY_SCHEME         | http             | https                                                            |
 | PROXY_HOST           |                  | 127.0.0.1                                                        |
 | PROXY_PORT           | 8080             | 8000                                                             |
+| SSL_EMAIL            |                  | me@email.com                                                     |
 
 ```bash
 # add proxy.conf
@@ -212,6 +213,7 @@ docker exec -it \
   -e PROXY_VHOST_NAME=myapp \
   -e PROXY_HOST=172.18.0.5 \
   -e PROXY_PORT=8080 \
+  -e SSL_MAIL=me@mail.com \
   nginx \
   nginx-vhost-proxy-conf
 ```
