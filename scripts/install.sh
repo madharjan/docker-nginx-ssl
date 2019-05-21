@@ -16,6 +16,7 @@ mkdir -p /config/etc/nginx-ssl/conf.d
 cp ${NGINX_CONFIG_PATH}/default.conf /config/etc/nginx-ssl/conf.d/default.conf
 cp ${NGINX_CONFIG_PATH}/default-ssl.conf /config/etc/nginx-ssl/conf.d/default-ssl.conf
 cp ${NGINX_CONFIG_PATH}/default-ssl-proxy.conf /config/etc/nginx-ssl/conf.d/default-ssl-proxy.conf
+cp ${NGINX_CONFIG_PATH}/vhost-ssl-proxy.conf /config/etc/nginx-ssl/conf.d/vhost-ssl-proxy.conf
 
 ## Install CertBot
 wget https://dl.eff.org/certbot-auto
